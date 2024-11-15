@@ -16,16 +16,25 @@ function conectarDB(){
   return $connection;
 }
 
-function get($table){
+function get($table, $filter = null){
   $conn = conectarDB();
 
-  if($table === "organizadores"){
-    $sql = "SELECT * FROM organizadores";
+  if (!$filter) {
+
+    if($table === "organizadores"){
+      $sql = "SELECT * FROM organizadores";
+    }else{
+      $sql = "SELECT eventos.*, organizadores.nombre AS nombre_organizador
+              FROM eventos
+              JOIN organizadores ON eventos.id_organizador = organizadores.id;";
+    }
+
   }else{
-    $sql = "SELECT eventos.*, organizadores.nombre AS nombre_organizador
-            FROM eventos
-            JOIN organizadores ON eventos.id_organizador = organizadores.id;";
+    $search = $filter . "%";
+
+    $sql = "SELECT * FROM eventos WHERE nombre_evento LIKE $search";
   }
+
   
   $result = $conn->query($sql);
 
@@ -281,27 +290,30 @@ function delete($accion){
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
   $method = substr($_POST['accion'], 0, 4);
   
   switch ($method) {
+      case 'POST':
+          post($_POST['accion']);
+          break;
 
-    case 'POST':
-      post($_POST['accion']);
-      break;
+      case 'UPDA':
+          put($_POST['id']);
+          break;
 
-    case 'UPDA':
+      case 'DELT':
+          delete($_POST['accion']);
+          break;
 
-      put($_POST['id']);
-      break;
-
-    case 'DELT':
-
-      delete($_POST['accion']);
-      break;
-
-    default:
-        break;
+      default:
+          echo "Accion no valida.";
+          break;
+  }
+} elseif ($_SERVER['REQUEST_METHOD'] === 'GET') {
+  if (isset($_GET['nombreBuscado'])) {
+    get("eventos", $_GET['nombreBuscado']);
+  } else {
+    echo "No se ha realizado ninguna búsqueda.";
   }
 }
 

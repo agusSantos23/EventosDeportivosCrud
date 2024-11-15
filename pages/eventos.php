@@ -36,6 +36,11 @@
 
 	<main>
 		<div>
+			<form action="../procesar.php" method="get" id="Buscador">
+				<input type="text" name="nombreBuscado" id="nombreBuscado" placeholder="Buscar por Nombre">
+				<button type="submit">Buscar</button>
+			</form>
+
 			<table>
 				<thead>
 					<th>Id</th>

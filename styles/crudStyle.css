@@ -36,7 +36,11 @@ main > div{
     color: #4A628A;
 }
 
-form{
+#Buscador{
+    display: flex;
+}
+
+main > form{
     display: flex;
     flex-direction: column;
     justify-content: space-around;
