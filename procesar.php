@@ -1,5 +1,6 @@
 <?php
 session_start();
+class DatabaseException extends Exception {}
 
 function conectarDB(){
 
@@ -19,7 +20,7 @@ function conectarDB(){
 function get($table, $filter = null){
   $conn = conectarDB();
 
-  if (!$filter) {
+  if ($filter === null) {
 
     if($table === "organizadores"){
       $sql = "SELECT * FROM organizadores";
@@ -32,19 +33,24 @@ function get($table, $filter = null){
   }else{
     $search = $filter . "%";
 
-    $sql = "SELECT * FROM eventos WHERE nombre_evento LIKE $search";
+    $sql = "SELECT * FROM eventos WHERE nombre_evento LIKE '$search'";
   }
 
   
   $result = $conn->query($sql);
+  
 
+
+  if (!$result) {
+    die('Error de consulta SQL: ' . $conn->error); 
+  }
+  
   $arrayResult = [];
   if ($result->num_rows > 0) {
     while ($row = $result->fetch_assoc()) {
       $arrayResult[] = $row;
     }
   }
-
   return $arrayResult;
 }
 
@@ -309,12 +315,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           echo "Accion no valida.";
           break;
   }
-} elseif ($_SERVER['REQUEST_METHOD'] === 'GET') {
-  if (isset($_GET['nombreBuscado'])) {
-    get("eventos", $_GET['nombreBuscado']);
-  } else {
-    echo "No se ha realizado ninguna búsqueda.";
-  }
-}
+} 
 
 

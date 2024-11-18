@@ -1,8 +1,16 @@
 <?php
+
   include "../procesar.php";
 
   $errors = isset($_SESSION['errors']) ? $_SESSION['errors']: null ;
   unset($_SESSION['errors']);
+
+	$eventosEncontrados = get("eventos"); 
+	if ($_SERVER['REQUEST_METHOD'] === 'GET') { 
+		if (isset($_GET['nombreBuscado'])) { 
+			$eventosEncontrados = get("eventos", $_GET['nombreBuscado']); 
+		} 
+	}
 
 	$isEdit = isset($_GET['id']);
 	$eventData = null;
@@ -21,14 +29,12 @@
 ?>
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Eventos</title>
 	<link rel="stylesheet" href="../styles/crudStyle.css">
 </head>
-
 <body>
 	<header>
 		<h1>Eventos</h1>
@@ -36,7 +42,7 @@
 
 	<main>
 		<div>
-			<form action="../procesar.php" method="get" id="Buscador">
+			<form method="GET" id="Buscador">
 				<input type="text" name="nombreBuscado" id="nombreBuscado" placeholder="Buscar por Nombre">
 				<button type="submit">Buscar</button>
 			</form>
@@ -54,35 +60,32 @@
 
 				<tbody>
 					<?php 
-						$events = get("eventos");
-						if (empty($events)) {
-							echo "<tr><td colspan='5'>No se ha encontrado ningún evento</td></tr>";
-						} else {
-							foreach ($events as $event):
-					?>
-							<tr>
-								<td><?php echo $event['id']; ?></td>
-								<td><?php echo $event['nombre_evento']; ?></td>
-								<td><?php echo $event['tipo_deporte']; ?></td>
-								<td><?php echo $event['fecha']; ?></td>
-								<td><?php echo $event['hora']; ?></td>
-								<td><?php echo $event['ubicacion']; ?></td>
-								<td><?php echo $event['nombre_organizador']; ?></td>
-								<td>
-									<a href='eventos.php?id=<?php echo $event['id']; ?>'>Editar</a>
-
-									<form action='../procesar.php' method='POST'>
-										<input type='hidden' name='accion' value='DELTeventos'>
-										<input type='hidden' name='id' value='<?php echo $event['id']; ?>'>
-										<button type='submit' onclick='return confirm("¿Estás seguro de que deseas eliminar este evento?")'>Eliminar</button>
-									</form>
-								</td>
-							</tr>
+						if (!empty($eventosEncontrados)) { 
+							foreach ($eventosEncontrados as $event): 
+					?> 
+						<tr> 
+							<td><?php echo $event['id']; ?></td> 
+							<td><?php echo $event['nombre_evento']; ?></td> 
+							<td><?php echo $event['tipo_deporte']; ?></td> 
+							<td><?php echo $event['fecha']; ?></td> 
+							<td><?php echo $event['hora']; ?></td> 
+							<td><?php echo $event['ubicacion']; ?></td> 
+							<td><?php echo $event['id_organizador']; ?></td> 
+							<td> 
+								<a href='eventos.php?id=<?php echo $event['id']; ?>'>Editar</a> 
+								<form action='../procesar.php' method='POST'> 
+									<input type='hidden' name='accion' value='DELTeventos'> 
+									<input type='hidden' name='id' value='<?php echo $event['id']; ?>'> 
+									<button type='submit' onclick='return confirm("¿Estás seguro de que deseas eliminar este evento?")'>Eliminar</button> 
+								</form> 
+							</td> 
+						</tr> 
 					<?php 
 							endforeach; 
-						}
+						} else {
+						 echo "<tr><td colspan='8'>No se ha encontrado ningún evento</td></tr>"; 
+						} 
 					?>
-
 				</tbody>
 			</table>
 		</div>
