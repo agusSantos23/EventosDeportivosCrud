@@ -300,20 +300,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   
   switch ($method) {
       case 'POST':
-          post($_POST['accion']);
-          break;
+        post($_POST['accion']);
+        break;
 
       case 'UPDA':
-          put($_POST['id']);
-          break;
+        put($_POST['id']);
+        break;
 
       case 'DELT':
-          delete($_POST['accion']);
-          break;
+        delete($_POST['accion']);
+        break;
 
       default:
-          echo "Accion no valida.";
-          break;
+        echo "Accion no valida.";
+        break;
   }
 } 
 
