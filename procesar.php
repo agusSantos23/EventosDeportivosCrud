@@ -17,24 +17,48 @@ function conectarDB(){
   return $connection;
 }
 
-function get($table, $filter = null){
+function get($table, $filter = null, $col = null, $ordenar = ""){
   $conn = conectarDB();
 
-  if ($filter === null) {
+  if($col === null){
 
-    if($table === "organizadores"){
-      $sql = "SELECT * FROM organizadores";
+    if ($filter === null) {
+
+      if($table === "organizadores"){
+        $sql = "SELECT * FROM organizadores";
+      }else{
+        $sql = "SELECT eventos.*, organizadores.nombre AS nombre_organizador
+                FROM eventos
+                JOIN organizadores ON eventos.id_organizador = organizadores.id;";
+      }
+  
     }else{
-      $sql = "SELECT eventos.*, organizadores.nombre AS nombre_organizador
-              FROM eventos
-              JOIN organizadores ON eventos.id_organizador = organizadores.id;";
+      $search = $filter . "%";
+  
+      $sql = "SELECT * FROM eventos WHERE nombre_evento LIKE '$search'";
     }
 
   }else{
-    $search = $filter . "%";
 
-    $sql = "SELECT * FROM eventos WHERE nombre_evento LIKE '$search'";
+    if ($filter === null) {
+      if($ordenar === "ASC"){
+        $sql = "SELECT * FROM eventos ORDER BY $col ASC";
+      }else{
+        $sql = "SELECT * FROM eventos ORDER BY $col DESC";
+      }
+    }else{
+
+      $search = $filter . "%";
+
+      if($ordenar === "ASC"){
+        $sql = "SELECT * FROM eventos WHERE nombre_evento LIKE '$search' ORDER BY $col ASC";
+      }else{
+        $sql = "SELECT * FROM eventos WHERE nombre_evento LIKE '$search' ORDER BY $col DESC";
+      }
+    }
   }
+
+  
 
   
   $result = $conn->query($sql);

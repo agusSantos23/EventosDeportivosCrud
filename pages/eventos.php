@@ -9,7 +9,13 @@
 	if ($_SERVER['REQUEST_METHOD'] === 'GET') { 
 		if (isset($_GET['nombreBuscado'])) { 
 			$eventosEncontrados = get("eventos", $_GET['nombreBuscado']); 
-		} 
+
+		}if(!empty($_GET['nombreBuscado']) && !empty($_GET['col']) && !empty($_GET['ordenar'])){
+			$eventosEncontrados = get('eventos', $_GET['nombreBuscado'], $_GET['col'], $_GET['ordenar']);
+
+		}else if(!empty($_GET['col']) && !empty($_GET['ordenar'])) {
+			$eventosEncontrados = get('eventos', null, $_GET['col'], $_GET['ordenar']);
+		}
 	}
 
 	$isEdit = isset($_GET['id']);
@@ -26,6 +32,17 @@
 		}
 	}
 
+	function generateUrl($baseUrl, $columnName) { 
+		$nombreBuscado = isset($_GET['nombreBuscado']) ? $_GET['nombreBuscado'] : ''; 
+		$col = isset($_GET['col']) ? $_GET['col'] : ''; 
+		$ordenar = isset($_GET['ordenar']) ? $_GET['ordenar'] : ''; 
+		$newOrdenar = ($col === $columnName && $ordenar === 'ASC') ? 'DESC' : 'ASC'; 
+		$url = $baseUrl . '?'; 
+		!empty($nombreBuscado) && $url .= 'nombreBuscado=' . $nombreBuscado . '&'; 
+		$url .= 'col=' . $columnName . '&ordenar=' . $newOrdenar; 
+		return $url; 
+	}
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -39,24 +56,43 @@
 	<header>
 		<h1>Eventos</h1>
 	</header>
-
 	<main>
 		<div>
 			<form method="GET" id="Buscador">
 				<input type="text" name="nombreBuscado" id="nombreBuscado" placeholder="Buscar por Nombre">
 				<button type="submit">Buscar</button>
 			</form>
-
 			<table>
 				<thead>
-					<th>Id</th>
-					<th>Nombre Evento</th>
-					<th>Tipo Deporte</th>
-					<th>Fecha</th>
-					<th>Hora</th>
-					<th>Ubicacion</th>
-					<th>Organizador</th>
+					<th>
+						<a href="<?php echo generateUrl('eventos.php', 'id'); ?>">Id</a>
+					</th>
+
+					<th> 
+						<a href="<?php echo generateUrl('eventos.php', 'nombre_evento'); ?>">Nombre Evento</a>
+					</th> 
+							
+					<th> 
+						<a href="<?php echo generateUrl('eventos.php', 'tipo_deporte'); ?>">Tipo Deporte</a>
+					</th> 
+								
+					<th> 
+						<a href="<?php echo generateUrl('eventos.php', 'fecha'); ?>">Fecha</a>
+					</th>
+					
+					<th> 
+						<a href="<?php echo generateUrl('eventos.php', 'hora'); ?>">Hora</a>
+					</th> 
+						
+					<th> 
+						<a href="<?php echo generateUrl('eventos.php', 'ubicacion'); ?>">Ubicación</a>
+					</th> 
+						
+					<th> 
+						<a href="<?php echo generateUrl('eventos.php', 'id_organizador'); ?>">Organizador</a>
+					</th>
 				</thead>
+
 
 				<tbody>
 					<?php 
