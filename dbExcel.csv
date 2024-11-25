@@ -1,1 +1,8 @@
-Maraton Sevilla,Maraton,2004-11-04,21:34:45,Sevilla,Ana
+Maraton Sevilla,futbol,04-11-2004,21:34,Sevilla,Ana
+Evento sin fecha,Maraton,,21:34,Sevilla,Ana
+Evento sin hora,Maraton,2004-11-04,,Sevilla,Ana
+Evento sin nombre,,2004-11-04,21:34,Sevilla,Ana
+Evento sin ubicación,Maraton,2004-11-04,21:34,,Ana
+Evento sin organizador,Maraton,2004-11-04,21:34,Sevilla,
+Evento con fecha incorrecta,Maraton,2004/11/04,21:34,Sevilla,Ana
+Evento con hora incorrecta,Maraton,2004-11-04,2134,Sevilla,Ana
