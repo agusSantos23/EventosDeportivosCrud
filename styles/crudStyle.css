@@ -3,7 +3,7 @@ body{
     color: black;
     background-color: #DFF2EB;
     margin: 0;
-    padding: 20px;
+    padding: 10px;
 }
 
 button{
@@ -28,7 +28,7 @@ main{
 }
 
 main > div{
-    width: 70%;
+    width: 80%;
     height: 100%;
     border: solid 2px #7AB2D3;
     border-radius: 5px;
@@ -55,8 +55,8 @@ main > form{
 
 
 table{
-    width: 95%; 
-    margin: 15px;
+    width: 100%; 
+    margin: 5px;
     border-collapse: collapse;
 }
 

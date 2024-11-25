@@ -43,6 +43,15 @@
 		return $url; 
 	}
 
+	function generarEmoji($columnName) { 
+		$col = isset($_GET['col']) ? $_GET['col'] : ''; 
+		$ordenar = isset($_GET['ordenar']) ? $_GET['ordenar'] : '';
+		if ($col === $columnName) { 
+			return $ordenar === 'ASC' ? '⬇️' : '⬆️'; 
+		} 
+		return ''; 
+	}
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -65,31 +74,31 @@
 			<table>
 				<thead>
 					<th>
-						<a href="<?php echo generateUrl('eventos.php', 'id'); ?>">Id</a>
+						<a href="<?php echo generateUrl('eventos.php', 'id'); ?>">Id <?php echo generarEmoji('id'); ?></a>
 					</th>
 
 					<th> 
-						<a href="<?php echo generateUrl('eventos.php', 'nombre_evento'); ?>">Nombre Evento</a>
+						<a href="<?php echo generateUrl('eventos.php', 'nombre_evento'); ?>">Nombre Evento <?php echo generarEmoji('nombre_evento'); ?></a>
 					</th> 
 							
 					<th> 
-						<a href="<?php echo generateUrl('eventos.php', 'tipo_deporte'); ?>">Tipo Deporte</a>
+						<a href="<?php echo generateUrl('eventos.php', 'tipo_deporte'); ?>">Tipo Deporte <?php echo generarEmoji('tipo_deporte'); ?></a>
 					</th> 
 								
 					<th> 
-						<a href="<?php echo generateUrl('eventos.php', 'fecha'); ?>">Fecha</a>
+						<a href="<?php echo generateUrl('eventos.php', 'fecha'); ?>">Fecha <?php echo generarEmoji('fecha'); ?></a>
 					</th>
 					
 					<th> 
-						<a href="<?php echo generateUrl('eventos.php', 'hora'); ?>">Hora</a>
+						<a href="<?php echo generateUrl('eventos.php', 'hora'); ?>">Hora <?php echo generarEmoji('hora'); ?></a>
 					</th> 
 						
 					<th> 
-						<a href="<?php echo generateUrl('eventos.php', 'ubicacion'); ?>">Ubicación</a>
+						<a href="<?php echo generateUrl('eventos.php', 'ubicacion'); ?>">Ubicación <?php echo generarEmoji('ubicacion'); ?></a>
 					</th> 
 						
 					<th> 
-						<a href="<?php echo generateUrl('eventos.php', 'id_organizador'); ?>">Organizador</a>
+						<a href="<?php echo generateUrl('eventos.php', 'id_organizador'); ?>">Organizador <?php echo generarEmoji('id_organizador'); ?></a>
 					</th>
 				</thead>
 
