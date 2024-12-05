@@ -17,66 +17,57 @@ function conectarDB(){
   return $connection;
 }
 
-function get($table, $filter = null, $col = null, $ordenar = ""){
-  $conn = conectarDB();
 
-  if($col === null){
-
-    if ($filter === null) {
-
-      if($table === "organizadores"){
-        $sql = "SELECT * FROM organizadores";
-      }else{
-        $sql = "SELECT eventos.*, organizadores.nombre AS nombre_organizador
-                FROM eventos
-                JOIN organizadores ON eventos.id_organizador = organizadores.id;";
-      }
+function get($table, $filter = null, $col = null, $ordenar = "", $pagina = null, $registrosPermitidos = null) { 
+  $conn = conectarDB(); 
+  $inicio = $pagina !== null ? ($pagina - 1) * $registrosPermitidos : 0; 
+  $limit = $registrosPermitidos !== null ? "LIMIT $inicio, $registrosPermitidos" : ""; 
   
-    }else{
-      $search = $filter . "%";
-  
-      $sql = "SELECT * FROM eventos WHERE nombre_evento LIKE '$search'";
-    }
-
-  }else{
-
-    if ($filter === null) {
-      if($ordenar === "ASC"){
-        $sql = "SELECT * FROM eventos ORDER BY $col ASC";
-      }else{
-        $sql = "SELECT * FROM eventos ORDER BY $col DESC";
-      }
-    }else{
-
-      $search = $filter . "%";
-
-      if($ordenar === "ASC"){
-        $sql = "SELECT * FROM eventos WHERE nombre_evento LIKE '$search' ORDER BY $col ASC";
-      }else{
-        $sql = "SELECT * FROM eventos WHERE nombre_evento LIKE '$search' ORDER BY $col DESC";
-      }
-    }
-  }
-
-  
-
-  
-  $result = $conn->query($sql);
-  
-
-
-  if (!$result) {
+  if ($table === "organizadores") { 
+    $baseQuery = "SELECT * FROM organizadores $limit"; 
+  }else if ($table === "eventos") { 
+    $baseQuery = "SELECT eventos.*, organizadores.nombre AS nombre_organizador FROM eventos JOIN organizadores ON eventos.id_organizador = organizadores.id $limit"; 
+  } else { 
+    return []; 
+  } 
+  $result = $conn->query($baseQuery); 
+  if (!$result) { 
     die('Error de consulta SQL: ' . $conn->error); 
-  }
+  } 
   
-  $arrayResult = [];
-  if ($result->num_rows > 0) {
-    while ($row = $result->fetch_assoc()) {
-      $arrayResult[] = $row;
-    }
-  }
+  $arrayResult = []; 
+  
+  if ($result->num_rows > 0) { 
+    while ($row = $result->fetch_assoc()) { 
+      $arrayResult[] = $row; 
+    } 
+  } 
+  
+  if ($filter !== null && $table === "eventos") { 
+    $arrayResult = array_filter($arrayResult, function($item) use ($filter) { 
+      return stripos($item['nombre_evento'], $filter) !== false; }); 
+  } else if ($filter !== null && $table === "organizadores") { 
+    $arrayResult = array_filter($arrayResult, function($item) use ($filter) { 
+      return stripos($item['nombre'], $filter) !== false; 
+    }); 
+  } 
+      
+      
+  if ($col !== null) { 
+    usort($arrayResult, function($a, $b) use ($col, $ordenar) { 
+      if ($a[$col] == $b[$col]) { 
+        return 0; 
+      } if ($ordenar === "ASC") { 
+        return ($a[$col] < $b[$col]) ? -1 : 1; 
+      } else { 
+        return ($a[$col] > $b[$col]) ? -1 : 1; 
+      } 
+    }); 
+  } 
+    
   return $arrayResult;
 }
+
 
 function post($accion){
   $conn = conectarDB();

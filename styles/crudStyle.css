@@ -28,6 +28,10 @@ main{
 }
 
 main > div{
+    display: flex;
+    padding: 20px;
+    justify-content: space-between;
+    flex-direction: column;
     width: 80%;
     height: 100%;
     border: solid 2px #7AB2D3;
@@ -41,6 +45,8 @@ main > div{
 }
 
 main > form{
+    padding: 20px;
+
     display: flex;
     flex-direction: column;
     justify-content: space-around;
@@ -107,4 +113,26 @@ input{
 
 ul{
     color: #e9505d;
+}
+
+#paginacion{
+    display: flex;
+    justify-content: center;
+    gap: 3px;
+}
+
+#paginacion > a {
+    border-radius: 5px;
+    text-decoration: none;
+    padding: 10px;
+    color: white;
+    background-color: gray;
+}
+
+#paginacion > a:hover {
+    background-color: #4A628A;
+}
+
+#paginacion > a:active {
+    background-color: #007CFF;
 }

@@ -1,22 +1,24 @@
 <?php
-
   include "../procesar.php";
 
   $errors = isset($_SESSION['errors']) ? $_SESSION['errors']: null ;
   unset($_SESSION['errors']);
 
-	$eventosEncontrados = get("eventos"); 
+	$nume = isset($_GET['nume']) ? $_GET['nume'] : 1;
+	$nume = $nume == "" ? 1 : $nume;
+	$registrosPermitidos = 5;
+	$inicio = ($nume - 1) * $registrosPermitidos;
+
+	$todosEventos = count(get("eventos")); 
+	$paginas = ceil($todosEventos / $registrosPermitidos);
+
 	if ($_SERVER['REQUEST_METHOD'] === 'GET') { 
-		if (isset($_GET['nombreBuscado'])) { 
-			$eventosEncontrados = get("eventos", $_GET['nombreBuscado']); 
-
-		}if(!empty($_GET['nombreBuscado']) && !empty($_GET['col']) && !empty($_GET['ordenar'])){
-			$eventosEncontrados = get('eventos', $_GET['nombreBuscado'], $_GET['col'], $_GET['ordenar']);
-
-		}else if(!empty($_GET['col']) && !empty($_GET['ordenar'])) {
-			$eventosEncontrados = get('eventos', null, $_GET['col'], $_GET['ordenar']);
-		}
+    $nombreBuscado = isset($_GET['nombreBuscado']) ? $_GET['nombreBuscado'] : null; 
+    $col = isset($_GET['col']) ? $_GET['col'] : null; 
+    $ordenar = isset($_GET['ordenar']) ? $_GET['ordenar'] : ""; 
+    $eventosEncontrados = get("eventos", $nombreBuscado, $col, $ordenar, $nume, $registrosPermitidos); 
 	}
+
 
 	$isEdit = isset($_GET['id']);
 	$eventData = null;
@@ -32,16 +34,26 @@
 		}
 	}
 
-	function generateUrl($baseUrl, $columnName) { 
-		$nombreBuscado = isset($_GET['nombreBuscado']) ? $_GET['nombreBuscado'] : ''; 
-		$col = isset($_GET['col']) ? $_GET['col'] : ''; 
-		$ordenar = isset($_GET['ordenar']) ? $_GET['ordenar'] : ''; 
-		$newOrdenar = ($col === $columnName && $ordenar === 'ASC') ? 'DESC' : 'ASC'; 
-		$url = $baseUrl . '?'; 
-		!empty($nombreBuscado) && $url .= 'nombreBuscado=' . $nombreBuscado . '&'; 
-		$url .= 'col=' . $columnName . '&ordenar=' . $newOrdenar; 
-		return $url; 
+	function generatePaginationUrl($page) {
+    $queryParams = $_GET;
+    $queryParams['nume'] = $page;
+    return $_SERVER['PHP_SELF'] . '?' . http_build_query($queryParams);
 	}
+
+
+	function generateUrl($baseUrl, $columnName) { 
+    $queryParams = $_GET;
+    $queryParams['col'] = $columnName;
+    $queryParams['ordenar'] = (isset($_GET['col']) && $_GET['col'] === $columnName && $_GET['ordenar'] === 'ASC') ? 'DESC' : 'ASC';
+    
+    // Asegúrate de que el parámetro 'nume' no se duplica
+    $queryParams['nume'] = isset($queryParams['nume']) ? (int)$queryParams['nume'] : 1;
+
+    return $baseUrl . '?' . http_build_query($queryParams);
+}
+
+
+
 
 	function generarEmoji($columnName) { 
 		$col = isset($_GET['col']) ? $_GET['col'] : ''; 
@@ -67,72 +79,82 @@
 	</header>
 	<main>
 		<div>
-			<form method="GET" id="Buscador">
-				<input type="text" name="nombreBuscado" id="nombreBuscado" placeholder="Buscar por Nombre">
-				<button type="submit">Buscar</button>
-			</form>
-			<table>
-				<thead>
-					<th>
-						<a href="<?php echo generateUrl('eventos.php', 'id'); ?>">Id <?php echo generarEmoji('id'); ?></a>
-					</th>
+			<div>
+				<form method="GET" id="Buscador">
+					<input type="text" name="nombreBuscado" id="nombreBuscado" placeholder="Buscar por Nombre">
+					<button type="submit">Buscar</button>
+				</form>
+				<table>
+					<thead>
+						<th>
+							<a href="<?php echo generateUrl('eventos.php', 'id'); ?>">Id <?php echo generarEmoji('id'); ?></a>
+						</th>
 
-					<th> 
-						<a href="<?php echo generateUrl('eventos.php', 'nombre_evento'); ?>">Nombre Evento <?php echo generarEmoji('nombre_evento'); ?></a>
-					</th> 
-							
-					<th> 
-						<a href="<?php echo generateUrl('eventos.php', 'tipo_deporte'); ?>">Tipo Deporte <?php echo generarEmoji('tipo_deporte'); ?></a>
-					</th> 
+						<th> 
+							<a href="<?php echo generateUrl('eventos.php', 'nombre_evento'); ?>">Nombre Evento <?php echo generarEmoji('nombre_evento'); ?></a>
+						</th> 
 								
-					<th> 
-						<a href="<?php echo generateUrl('eventos.php', 'fecha'); ?>">Fecha <?php echo generarEmoji('fecha'); ?></a>
-					</th>
-					
-					<th> 
-						<a href="<?php echo generateUrl('eventos.php', 'hora'); ?>">Hora <?php echo generarEmoji('hora'); ?></a>
-					</th> 
+						<th> 
+							<a href="<?php echo generateUrl('eventos.php', 'tipo_deporte'); ?>">Tipo Deporte <?php echo generarEmoji('tipo_deporte'); ?></a>
+						</th> 
+									
+						<th> 
+							<a href="<?php echo generateUrl('eventos.php', 'fecha'); ?>">Fecha <?php echo generarEmoji('fecha'); ?></a>
+						</th>
 						
-					<th> 
-						<a href="<?php echo generateUrl('eventos.php', 'ubicacion'); ?>">Ubicación <?php echo generarEmoji('ubicacion'); ?></a>
-					</th> 
-						
-					<th> 
-						<a href="<?php echo generateUrl('eventos.php', 'id_organizador'); ?>">Organizador <?php echo generarEmoji('id_organizador'); ?></a>
-					</th>
-				</thead>
+						<th> 
+							<a href="<?php echo generateUrl('eventos.php', 'hora'); ?>">Hora <?php echo generarEmoji('hora'); ?></a>
+						</th> 
+							
+						<th> 
+							<a href="<?php echo generateUrl('eventos.php', 'ubicacion'); ?>">Ubicación <?php echo generarEmoji('ubicacion'); ?></a>
+						</th> 
+							
+						<th> 
+							<a href="<?php echo generateUrl('eventos.php', 'id_organizador'); ?>">Organizador <?php echo generarEmoji('id_organizador'); ?></a>
+						</th>
+					</thead>
 
+					<tbody>
+						<?php 
+							if (!empty($eventosEncontrados)) { 
+								foreach ($eventosEncontrados as $event): 
+						?> 
+							<tr> 
+								<td><?php echo $event['id']; ?></td> 
+								<td><?php echo $event['nombre_evento']; ?></td> 
+								<td><?php echo $event['tipo_deporte']; ?></td> 
+								<td><?php echo $event['fecha']; ?></td> 
+								<td><?php echo $event['hora']; ?></td> 
+								<td><?php echo $event['ubicacion']; ?></td> 
+								<td><?php echo $event['id_organizador']; ?></td> 
+								<td> 
+									<a href='eventos.php?id=<?php echo $event['id']; ?>'>Editar</a> 
+									<form action='../procesar.php' method='POST'> 
+										<input type='hidden' name='accion' value='DELTeventos'> 
+										<input type='hidden' name='id' value='<?php echo $event['id']; ?>'> 
+										<button type='submit' onclick='return confirm("¿Estás seguro de que deseas eliminar este evento?")'>Eliminar</button> 
+									</form> 
+								</td> 
+							</tr> 
+						<?php 
+								endforeach; 
+							} else {
+							echo "<tr><td colspan='8'>No se ha encontrado ningún evento</td></tr>"; 
+							} 
+						?>
+					</tbody>
+				</table>
 
-				<tbody>
-					<?php 
-						if (!empty($eventosEncontrados)) { 
-							foreach ($eventosEncontrados as $event): 
-					?> 
-						<tr> 
-							<td><?php echo $event['id']; ?></td> 
-							<td><?php echo $event['nombre_evento']; ?></td> 
-							<td><?php echo $event['tipo_deporte']; ?></td> 
-							<td><?php echo $event['fecha']; ?></td> 
-							<td><?php echo $event['hora']; ?></td> 
-							<td><?php echo $event['ubicacion']; ?></td> 
-							<td><?php echo $event['id_organizador']; ?></td> 
-							<td> 
-								<a href='eventos.php?id=<?php echo $event['id']; ?>'>Editar</a> 
-								<form action='../procesar.php' method='POST'> 
-									<input type='hidden' name='accion' value='DELTeventos'> 
-									<input type='hidden' name='id' value='<?php echo $event['id']; ?>'> 
-									<button type='submit' onclick='return confirm("¿Estás seguro de que deseas eliminar este evento?")'>Eliminar</button> 
-								</form> 
-							</td> 
-						</tr> 
-					<?php 
-							endforeach; 
-						} else {
-						 echo "<tr><td colspan='8'>No se ha encontrado ningún evento</td></tr>"; 
-						} 
-					?>
-				</tbody>
-			</table>
+			</div>
+			
+			<div id="paginacion">
+				
+				<?php for ($i = 1; $i <= $paginas; $i++): ?> 
+					<a href="<?php echo generatePaginationUrl($i); ?>"><?php echo $i; ?></a>
+				<?php endfor; ?>
+				
+			</div>
 		</div>
 
 		<form action="../procesar.php" method="post">
